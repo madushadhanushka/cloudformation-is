@@ -24,7 +24,7 @@ wso2.testgrid.infrastructure:
     name: "Ubuntu"
     version: "17.04"
   database:
-    engine: &databaseEngine "MySQL"
+    engine: &databaseEngine "MYSQL"
     version: &databaseVersion "5.7"
   jdk: &jdk "JDK7"
   securityProperties:
