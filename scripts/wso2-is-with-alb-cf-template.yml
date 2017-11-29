@@ -39,8 +39,6 @@ Mappings:
 # User inputs
 #############################
 Parameters:
-  WSO2EnvVPC:
-    Type: String
   JDK:
     Type: String
     Default: "JDK8"
@@ -108,6 +106,16 @@ Resources:
   ##############################
   # Create VPC and subnets
   ##############################
+  WSO2EnvVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      InstanceTenancy: default
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: Name
+          Value: wso2-vpc
   WSO2EnvPrivateSubnet1:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -488,9 +496,18 @@ Outputs:
   WSO2ISPrivateIP:
       Value: !Sub '${WSO2EnvISInstance.PrivateIp}'
       Description: Private IP of the WSO2 IS Instance
-  WSO2ISHostName:
+  serverHost:
         Value: !Sub '${WSO2EnvISApplicationLoadBalancer.DNSName}'
         Description: DNS Name of the ALB fronting WSO2 IS Instance
+  serverPort:
+        Value: 443
+        Description: Default port of WSO2IS 
+  severHost:
+        Value: !Sub '${WSO2EnvISApplicationLoadBalancer.DNSName}'
+        Description: DNS Name of the ALB fronting WSO2 IS Instance
+  severPort:
+        Value: 443
+        Description: Default port of WSO2IS 
   WSO2ISMCURL:
     Value: !Sub 'https://${WSO2EnvISApplicationLoadBalancer.DNSName}/carbon'
     Description: Access URL of the Management Console
