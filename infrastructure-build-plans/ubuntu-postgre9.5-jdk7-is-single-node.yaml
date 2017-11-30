@@ -24,7 +24,7 @@ wso2.testgrid.infrastructure:
     name: "Ubuntu"
     version: "17.04"
   database:
-    engine: &databaseEngine "PostgreSQL"
+    engine: &databaseEngine "POSTGRESQL"
     version: &databaseVersion "9.5"
   jdk: &jdk "JDK7"
   securityProperties:
