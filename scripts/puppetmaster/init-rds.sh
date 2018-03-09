@@ -39,6 +39,7 @@ readonly CONFIG_REG_DB="WSO2_CONFIG_REG_DB"
 readonly IDENTITY_DB="WSO2_IDENTITY_DB"
 readonly BPS_DB="WSO2_BPS_DB"
 readonly METRICS_DB="WSO2_METRICS_DB"
+readonly POSTGRES_DB="wso2db"
 
 function init_mysql_rds() {
 
@@ -65,6 +66,29 @@ function init_mysql_rds() {
     echo ">> Tables created!"
 }
 
+function init_postgres_rds() {
+    export PGPASSWORD=$DB_PASSWORD
+    echo ">> Setting up Postgres databases ..."
+    echo ">> Creating databases..."
+    psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $POSTGRES_DB -c "DROP DATABASE IF EXISTS $UM_DB; DROP DATABASE IF
+    EXISTS $GOV_REG_DB; DROP DATABASE IF EXISTS $CONFIG_REG_DB; DROP DATABASE IF EXISTS $IDENTITY_DB; DROP DATABASE
+    IF EXISTS $BPS_DB; DROP DATABASE IF EXISTS $METRICS_DB; CREATE DATABASE $UM_DB; CREATE DATABASE $GOV_REG_DB;
+    CREATE DATABASE $CONFIG_REG_DB; CREATE DATABASE $IDENTITY_DB; CREATE DATABASE $BPS_DB; CREATE DATABASE $METRICS_DB;"
+    echo ">> Databases created!"
+
+    echo ">> Creating tables..."
+    psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $UM_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+    psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $GOV_REG_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+    psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $CONFIG_REG_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+    psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $IDENTITY_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+    psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $BPS_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+    psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $METRICS_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+
+    echo ">> Tables created!"
+}
+
 if [ $DB_ENGINE == "mysql" ]; then
     init_mysql_rds
+else 
+    init_postgres_rds
 fi
