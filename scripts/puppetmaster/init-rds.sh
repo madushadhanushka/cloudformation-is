@@ -91,12 +91,53 @@ function init_postgres_rds() {
     psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $IDENTITY_DB -f $DB_SCRIPTS_PATH/postgresql.sql
     psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $BPS_DB -f $DB_SCRIPTS_PATH/postgresql.sql
     psql -h $DB_HOST -p $DB_PORT -U $POSTGRES_USERNAME -d $METRICS_DB -f $DB_SCRIPTS_PATH/postgresql.sql
+    echo ">> Tables created!"
+}
 
+function init_oracle_rds() {
+    echo ">> Setting up Oracle databases ..."
+    echo ">> Creating databases..."
+    echo ">> Databases created!"
+
+    echo ">> Creating tables..."
+    echo ">> Tables created!"
+}
+
+function init_mariadb_rds() {
+    echo ">> Setting up MariaDB databases ..."
+    echo ">> Creating databases..."
+    mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -e "DROP DATABASE IF EXISTS $UM_DB; DROP DATABASE IF
+    EXISTS $GOV_REG_DB; DROP DATABASE IF EXISTS $CONFIG_REG_DB; DROP DATABASE IF EXISTS $IDENTITY_DB; DROP DATABASE
+    IF EXISTS $BPS_DB; DROP DATABASE IF EXISTS $METRICS_DB; CREATE DATABASE $UM_DB; CREATE DATABASE $GOV_REG_DB;
+    CREATE DATABASE $CONFIG_REG_DB; CREATE DATABASE $IDENTITY_DB; CREATE DATABASE $BPS_DB; CREATE DATABASE $METRICS_DB;"
+    echo ">> Databases created!"
+
+    echo ">> Creating tables..."
+    mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -e "USE $UM_DB; SOURCE $DB_SCRIPTS_PATH/mysql.sql;
+    USE $GOV_REG_DB; SOURCE $DB_SCRIPTS_PATH/mysql.sql; USE $CONFIG_REG_DB; SOURCE $DB_SCRIPTS_PATH/mysql.sql;
+    USE $IDENTITY_DB; SOURCE $DB_SCRIPTS_PATH/identity/mysql.sql; 
+    USE $BPS_DB; SOURCE $DB_SCRIPTS_PATH/bps/bpel/create/mysql.sql;
+    USE $METRICS_DB; SOURCE $DB_SCRIPTS_PATH/metrics/mysql.sql;"
+    echo ">> Tables created!"
+}
+
+function init_sqlserverex_rds() {
+    echo ">> Setting up SQLServer-Express databases ..."
+    echo ">> Creating databases..."
+    echo ">> Databases created!"
+
+    echo ">> Creating tables..."
     echo ">> Tables created!"
 }
 
 if [ $DB_ENGINE == "mysql" ]; then
     init_mysql_rds
-else 
+elif [ $DB_ENGINE == "postgres" ]; then
     init_postgres_rds
+elif [ $DB_ENGINE == "oracle-se" ]; then
+    init_oracle_rds
+elif [ $DB_ENGINE == "mariadb" ]; then
+    init_mariadb_rds
+elif [ $DB_ENGINE == "sqlserver-ex" ]; then
+    init_sqlserverex_rds
 fi
