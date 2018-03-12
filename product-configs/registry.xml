@@ -34,27 +34,19 @@
         <dataSource>jdbc/WSO2CarbonDB</dataSource>
     </dbConfig>
 
-    <dbConfig name="config">
-        <dataSource>jdbc/WSO2_IDENTITY_DB</dataSource>
+    <dbConfig name="governance">
+        <dataSource>jdbc/WSO2_GOV_REG_DB</dataSource>
     </dbConfig>
-
-    <remoteInstance url="https://localhost:9443/registry">
-        <id>config</id>
-        <dbConfig>config</dbConfig>
-        <readOnly>false</readOnly>
-        <registryRoot>/</registryRoot>
-        <enableCache>true</enableCache>
-        <cacheId>jdbc:mysql://#_RDS_HOSTNAME_#:3306/#_IDENTITY_DB_#</cacheId>
-    </remoteInstance>
 
     <mount path="/_system/config" overwrite="true">
         <instanceId>config</instanceId>
         <targetPath>/_system/config</targetPath>
     </mount>
 
-    <dbConfig name="governance">
-        <dataSource>jdbc/WSO2_GOV_REG_DB</dataSource>
-    </dbConfig>
+    <mount path="/_system/governance" overwrite="true">
+        <instanceId>governance</instanceId>
+        <targetPath>/_system/governance</targetPath>
+    </mount>
 
     <remoteInstance url="https://localhost:9443/registry">
         <id>governance</id>
@@ -64,11 +56,6 @@
         <enableCache>true</enableCache>
         <cacheId>jdbc:mysql://#_RDS_HOSTNAME_#:3306/#_GOV_REG_DB_#</cacheId>
     </remoteInstance>
-
-    <mount path="/_system/governance" overwrite="true">
-        <instanceId>governance</instanceId>
-        <targetPath>/_system/governance</targetPath>
-    </mount>
 
     <handler class="org.wso2.carbon.identity.entitlement.policy.finder.registry.RegistryPolicyHandler">
         <filter class="org.wso2.carbon.identity.entitlement.policy.finder.registry.RegistryPolicyMediaTypeMatcher">

@@ -1,4 +1,25 @@
+# ----------------------------------------------------------------------------
+#
+# Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+# WSO2 Inc. licenses this file to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# ----------------------------------------------------------------------------
 AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  WSO2 Identity Server two node deployment with puppet master agent setup
 
 ##############################################################################################
 # Mappings for Ubuntu AMIs
@@ -7,47 +28,49 @@ AWSTemplateFormatVersion: 2010-09-09
 Mappings:
   RegionMap:
     ap-northeast-1:
-      AMI: ami-15872773
+      AMI: ami-2f2d9c49
     ap-northeast-2:
-      AMI: ami-7b1cb915
+      AMI: ami-e49e398a
     ap-south-1:
-      AMI: ami-bc0d40d3
+      AMI: ami-46eea129
     ap-southeast-1:
-      AMI: ami-67a6e604
+      AMI: ami-84a6f3e7
     ap-southeast-2:
-      AMI: ami-41c12e23
+      AMI: ami-4cc8232e
     ca-central-1:
-      AMI: ami-8a71c9ee
+      AMI: ami-338b3057
     eu-central-1:
-      AMI: ami-97e953f8
+      AMI: ami-e22aaa8d
     eu-west-1:
-      AMI: ami-add175d4
+      AMI: ami-2e832957
     eu-west-2:
-      AMI: ami-ecbea388
+      AMI: ami-3fc8d75b
     sa-east-1:
-      AMI: ami-466b132a
+      AMI: ami-981550f4
     us-east-1:
-      AMI: ami-da05a4a0
+      AMI: ami-c29e1cb8
     us-east-2:
-      AMI: ami-336b4456
+      AMI: ami-f0f8d695
     us-west-1:
-      AMI: ami-1c1d217c
+      AMI: ami-8b90a9eb
     us-west-2:
-      AMI: ami-0a00ce72
+      AMI: ami-25cf1c5d
 
 #############################
 # User inputs
 #############################
 Parameters:
-  WSO2EnvVPC:
+  AMI:
     Type: String
+    Default: READ_FROM_REGIONMAP
+    Description: AMI of the region. Keep READ_FROM_REGIONMAP to map Ubuntu AMI from the RegionMap in the script.
   JDK:
     Type: String
-    Default: "JDK8"
+    Default: "ORACLE_JDK8"
     Description: Target Java version
     AllowedValues:
-      - JDK7
-      - JDK8
+      - ORACLE_JDK7
+      - ORACLE_JDK8
   DBEngine:
     Type: String
     Default: "mysql"
@@ -62,27 +85,50 @@ Parameters:
     Type: String
     Default: "5.6.35"
     Description: Database Engine version
-  Image:
+    MinLength: 1
+  DBUsername:
     Type: String
-    Default: "ami-08c64c72"
-    Description: The AMI id
-  WUMUsername:
+    Default: wso2carbon
+    Description: Database master account username
+    MinLength: 1
+    MaxLength: 20
+    ConstraintDescription : minimum - 1, maximum - 20 characters
+  DBPassword:
     Type: String
-    Default: ""
-    Description: Enter WUM user name
-  WUMPassword:
-    Type: String
-    Default: ""
     NoEcho: true
-    Description: Enter WUM user password to get the updated WSO2 products deployed. If not provided standard released pack will be deployed
+    Description: Database master account password
+    MinLength: 6
+    ConstraintDescription: minimum - 6 characters
+  DBClass:
+    Default: db.t2.micro
+    Description: Database instance class
+    Type: String
+    AllowedValues:
+      - db.t2.micro
+      - db.t2.small
+      - db.t2.medium
+      - db.t2.large
+      - db.t2.xlarge
+      - db.t2.2xlarge
+      - db.m4.large
+      - db.m4.xlarge
+      - db.m4.2xlarge
+    ConstraintDescription: must be a valid database instance type
+  DBAllocatedStorage:
+    Default: 20
+    Description: Size of the database (GB)
+    Type: Number
+    MinValue: 20
+    MaxValue: 6144
+    ConstraintDescription: minimum - 20 GB, maximum - 6144 GB
   EC2KeyPair:
     Description: This is used to ssh to the node. If you don't have a key, please create one from AWS console and rerun the script
     Type: "AWS::EC2::KeyPair::KeyName"
   ALBCertificateARN:
     Type: String
     Description: Enter the ARN value of the certificate uploaded to ACM for Application Load Balancers
-  InstanceType:
-    Description: EC2 instance type [t2.micro is the free tier]
+  WSO2ISInstanceType:
+    Description: EC2 instance type of the WSO2 IS Node [t2.micro is the free tier]
     Type: String
     Default: m4.large
     AllowedValues:
@@ -99,7 +145,19 @@ Parameters:
       - m3.xlarge
       - m3.2xlarge
       - m4.large
-    ConstraintDescription: must be a valid EC2 instance type.
+    ConstraintDescription: must be a valid EC2 instance type
+  AWSAccessKeyId:
+    Type: String
+    NoEcho: true
+    Description: The AWS Access Key ID used for AWS clustering
+  AWSAccessKeySecret:
+    Type: String
+    NoEcho: true
+    Description: The AWS Access Key Secret used for internal AWS clustering
+
+# Conditions
+Conditions:
+  UseDefaultUbuntuAMI: !Equals [!Ref AMI, READ_FROM_REGIONMAP]
 
 ################################
 # Create AWS resources
@@ -108,6 +166,16 @@ Resources:
   ##############################
   # Create VPC and subnets
   ##############################
+  WSO2EnvVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      InstanceTenancy: default
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: Name
+          Value: wso2-vpc
   WSO2EnvPrivateSubnet1:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -260,12 +328,25 @@ Resources:
       VpcId: !Ref WSO2EnvVPC
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: 0
-        ToPort: 65535
+        FromPort: 22
+        ToPort: 22
         CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-      - IpProtocol: -1
-        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8140
+        ToPort: 8140
+        CidrIp: !GetAtt WSO2EnvVPC.CidrBlock
+      - IpProtocol: tcp
+        FromPort: 5701
+        ToPort: 5701
+        CidrIp: !GetAtt WSO2EnvVPC.CidrBlock
+      - IpProtocol: tcp
+        FromPort: 9763
+        ToPort: 9763
+        SourceSecurityGroupId: !Ref WSO2EnvLBSecurityGroup
+      - IpProtocol: tcp
+        FromPort: 9443
+        ToPort: 9443
+        SourceSecurityGroupId: !Ref WSO2EnvLBSecurityGroup
   WSO2EnvLBSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -273,27 +354,8 @@ Resources:
       VpcId: !Ref WSO2EnvVPC
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: 9763
-        ToPort: 9763
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 8080
-        ToPort: 8080
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 8081
-        ToPort: 8081
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
         FromPort: 443
         ToPort: 443
-        CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-      - IpProtocol: -1
         CidrIp: 0.0.0.0/0
   WSO2EnvDBSecurityGroup:
       Type: 'AWS::EC2::SecurityGroup'
@@ -304,22 +366,19 @@ Resources:
         - IpProtocol: tcp
           FromPort: 3306
           ToPort: 3306
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref WSO2EnvInstanceSecurityGroup
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref WSO2EnvInstanceSecurityGroup
         - IpProtocol: tcp
           FromPort: 1433
           ToPort: 1433
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref WSO2EnvInstanceSecurityGroup
         - IpProtocol: tcp
           FromPort: 1521
           ToPort: 1521
-          CidrIp: 0.0.0.0/0
-        SecurityGroupEgress:
-        - IpProtocol: -1
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref WSO2EnvInstanceSecurityGroup
 
   ###########################
   # Create Elastic IPs
@@ -341,7 +400,8 @@ Resources:
     Properties:
       DisableApiTermination: 'false'
       InstanceInitiatedShutdownBehavior: stop
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId:
+        Fn::If: [UseDefaultUbuntuAMI, !FindInMap [RegionMap, !Ref "AWS::Region", AMI], !Ref AMI]
       InstanceType: t2.micro
       KeyName: !Ref EC2KeyPair
       Monitoring: 'false'
@@ -355,29 +415,123 @@ Resources:
           SubnetId: !Ref WSO2EnvPublicSubnet1
           GroupSet:
             - !Ref WSO2EnvInstanceSecurityGroup
-  WSO2EnvISInstance:
+  WSO2EnvPuppetMasterInstance:
+      Type: 'AWS::EC2::Instance'
+      DependsOn: WSO2EnvDBInstance
+      Properties:
+        DisableApiTermination: 'false'
+        InstanceInitiatedShutdownBehavior: stop
+        ImageId:
+          Fn::If: [UseDefaultUbuntuAMI, !FindInMap [RegionMap, !Ref "AWS::Region", AMI], !Ref AMI]
+        InstanceType: t2.micro
+        KeyName: !Ref EC2KeyPair
+        Monitoring: 'false'
+        UserData:
+          Fn::Base64:
+            !Sub |
+              #!/bin/bash
+              set -e
+              apt-get -y install git
+              mkdir workspace
+              cd workspace
+              git init
+              git remote add -f origin https://github.com/wso2/cloudformation-is
+              git config core.sparseCheckout true
+              echo "scripts/puppetmaster/" >> .git/info/sparse-checkout
+              git pull --depth=1 origin master
+              ./scripts/puppetmaster/install-puppet.sh
+              ./scripts/puppetmaster/install-packages.sh
+              ./scripts/puppetmaster/download-artifacts.sh
+              ./scripts/puppetmaster/extract-artifacts.sh
+              ./scripts/puppetmaster/init-rds.sh -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsversion ${DBEngineVersion} -rdsusername ${DBUsername} -rdspassword ${DBPassword}
+              ./scripts/puppetmaster/setup-puppet.sh
+              ./scripts/puppetmaster/configure-hiera.sh -pattern pattern-2 -ishost ${WSO2EnvISApplicationLoadBalancer.DNSName} -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsusername ${DBUsername} -rdspassword ${DBPassword} -awsid ${AWSAccessKeyId} -awssecret ${AWSAccessKeySecret} -securitygroup ${WSO2EnvInstanceSecurityGroup.GroupId} -region ${AWS::Region}
+              ./scripts/puppetmaster/copy-files.sh
+              apt-get --purge remove -y git
+              cat /dev/null > ~/.bash_history && history -c
+        Tags:
+          - Key: Name
+            Value: wso2-is-puppet-master
+        NetworkInterfaces:
+          - DeleteOnTermination: 'true'
+            Description: Primary network interface
+            DeviceIndex: 0
+            SubnetId: !Ref WSO2EnvPrivateSubnet1
+            GroupSet:
+              - !Ref WSO2EnvInstanceSecurityGroup
+  WSO2EnvISInstance1:
     Type: 'AWS::EC2::Instance'
-    DependsOn: WSO2EnvDBInstance
+    DependsOn:
+      - WSO2EnvDBInstance
+      - WSO2EnvPuppetMasterInstance
     Properties:
       DisableApiTermination: 'false'
       InstanceInitiatedShutdownBehavior: stop
-      ImageId: !Ref Image
-      InstanceType: !Ref InstanceType
+      ImageId:
+        Fn::If: [UseDefaultUbuntuAMI, !FindInMap [RegionMap, !Ref "AWS::Region", AMI], !Ref AMI]
+      InstanceType: !Ref WSO2ISInstanceType
       KeyName: !Ref EC2KeyPair
       Monitoring: 'false'
       UserData:
         Fn::Base64:
           !Sub |
-            #!/bin/bash -xe
-            cd /home/ubuntu/
-            git clone https://github.com/wso2/cloudformation-is.git --depth 1
-            chown -R ubuntu cloudformation-is
-            cd cloudformation-is/scripts
-            bash ./setup-env.sh -user ubuntu -wumuser ${WUMUsername} -wumpassowrd ${WUMPassword} -jdk ${JDK} ${DBEngine}
-            bash ./setup-is.sh -user ubuntu -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsversion ${DBEngineVersion} -lbhost ${WSO2EnvISApplicationLoadBalancer.DNSName}
+            #!/bin/bash
+            set -e
+            apt-get -y install git
+            mkdir workspace
+            cd workspace
+            git init
+            git remote add -f origin https://github.com/wso2/cloudformation-is
+            git config core.sparseCheckout true
+            echo "scripts/puppetagent/" >> .git/info/sparse-checkout
+            git pull --depth=1 origin master
+            ./scripts/puppetagent/install-puppet.sh -puppetmaster ${WSO2EnvPuppetMasterInstance.PrivateIp}
+            ./scripts/puppetagent/setup-puppet.sh -pattern pattern-2
+            apt-get --purge remove -y git
+            cat /dev/null > ~/.bash_history && history -c
       Tags:
         - Key: Name
-          Value: wso2-is-instance1
+          Value: wso2-is-node-1
+      NetworkInterfaces:
+        - DeleteOnTermination: 'true'
+          Description: Primary network interface
+          DeviceIndex: 0
+          SubnetId: !Ref WSO2EnvPrivateSubnet1
+          GroupSet:
+            - !Ref WSO2EnvInstanceSecurityGroup
+  WSO2EnvISInstance2:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - WSO2EnvDBInstance
+      - WSO2EnvPuppetMasterInstance
+    Properties:
+      DisableApiTermination: 'false'
+      InstanceInitiatedShutdownBehavior: stop
+      ImageId:
+        Fn::If: [UseDefaultUbuntuAMI, !FindInMap [RegionMap, !Ref "AWS::Region", AMI], !Ref AMI]
+      InstanceType: !Ref WSO2ISInstanceType
+      KeyName: !Ref EC2KeyPair
+      Monitoring: 'false'
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+            set -e
+            apt-get -y install git
+            mkdir workspace
+            cd workspace
+            git init
+            git remote add -f origin https://github.com/wso2/cloudformation-is
+            git config core.sparseCheckout true
+            echo "scripts/puppetagent/" >> .git/info/sparse-checkout
+            git pull --depth=1 origin master
+            ./scripts/puppetagent/install-puppet.sh -puppetmaster ${WSO2EnvPuppetMasterInstance.PrivateIp}
+            ./scripts/puppetagent/setup-puppet.sh -pattern pattern-2
+            apt-get --purge remove -y git
+            cat /dev/null > ~/.bash_history && history -c
+      Tags:
+        - Key: Name
+          Value: wso2-is-node-2
       NetworkInterfaces:
         - DeleteOnTermination: 'true'
           Description: Primary network interface
@@ -392,14 +546,13 @@ Resources:
   WSO2EnvDBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      AllocatedStorage: 20
-      DBInstanceClass: db.t2.micro
+      AllocatedStorage: !Ref DBAllocatedStorage
+      DBInstanceClass: !Ref DBClass
       Engine: !Ref DBEngine
       EngineVersion: !Ref DBEngineVersion
       DBInstanceIdentifier: wso2-is-dbinstance
-      DBName: wso2db
-      MasterUsername: wso2
-      MasterUserPassword: password
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
       AutoMinorVersionUpgrade: false
       BackupRetentionPeriod: 0
       DBSubnetGroupName: !Ref WSO2EnvDBSubnetGroup
@@ -451,7 +604,9 @@ Resources:
       - Key: stickiness.enabled
         Value: 'true'
       Targets:
-      - Id: !Ref WSO2EnvISInstance
+      - Id: !Ref WSO2EnvISInstance1
+        Port: 9443
+      - Id: !Ref WSO2EnvISInstance2
         Port: 9443
       UnhealthyThresholdCount: 3
       VpcId:
@@ -485,12 +640,24 @@ Outputs:
   BastionEIP:
     Value: !Sub '${WSO2EnvBastionInstance.PublicIp}'
     Description: Elastic IP of the Bastion Instance
-  WSO2ISPrivateIP:
-      Value: !Sub '${WSO2EnvISInstance.PrivateIp}'
-      Description: Private IP of the WSO2 IS Instance
+  WSO2ISPuppetMasterPrivateIP:
+    Value: !Sub '${WSO2EnvPuppetMasterInstance.PrivateIp}'
+    Description: Private IP of the WSO2 Puppet Master Instance
+  WSO2IS1PrivateIP:
+    Value: !Sub '${WSO2EnvISInstance1.PrivateIp}'
+    Description: Private IP of the WSO2 IS Instance
+  WSO2IS2PrivateIP:
+    Value: !Sub '${WSO2EnvISInstance2.PrivateIp}'
+    Description: Private IP of the WSO2 IS Instance
   WSO2ISHostName:
-        Value: !Sub '${WSO2EnvISApplicationLoadBalancer.DNSName}'
-        Description: DNS Name of the ALB fronting WSO2 IS Instance
+    Value: !Sub '${WSO2EnvISApplicationLoadBalancer.DNSName}'
+    Description: DNS Name of the ALB fronting WSO2 IS Instance
+  serverHost:
+    Value: !Sub '${WSO2EnvISApplicationLoadBalancer.DNSName}'
+    Description: DNS Name of the ALB fronting WSO2 IS Instance
+  serverPort:
+    Value: 443
+    Description: Listening Port of ALB fronting WSO2 IS Instance
   WSO2ISMCURL:
     Value: !Sub 'https://${WSO2EnvISApplicationLoadBalancer.DNSName}/carbon'
     Description: Access URL of the Management Console

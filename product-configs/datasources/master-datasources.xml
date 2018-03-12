@@ -38,8 +38,8 @@
                     <maxActive>50</maxActive>
                     <maxWait>60000</maxWait>
                     <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
+                    <!--<validationQuery>SELECT 1</validationQuery>-->
+                    <!--<validationInterval>30000</validationInterval>-->
                     <defaultAutoCommit>false</defaultAutoCommit>
                 </configuration>
             </definition>
@@ -53,7 +53,7 @@
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:#_RDS_TYPE_#://#_RDS_HOSTNAME_#:#_RDS_PORT_#/#_UM_DB_#</url>
+                    <url>#_UM_DB_CONNECTION_URL_#</url>
                     <username>#_UM_USER_#</username>
                     <password>#_UM_USER_PWD_#</password>
                     <driverClassName>#_DRIVER_CLASS_#</driverClassName>
@@ -61,8 +61,8 @@
                     <maxWait>60000</maxWait>
                     <minIdle>5</minIdle>
                     <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
+                    <!--<validationQuery>SELECT 1</validationQuery>-->
+                    <!--<validationInterval>30000</validationInterval>-->
                     <defaultAutoCommit>false</defaultAutoCommit>
                 </configuration>
             </definition>
@@ -76,7 +76,7 @@
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:#_RDS_TYPE_#://#_RDS_HOSTNAME_#:#_RDS_PORT_#/#_GOV_REG_DB_#</url>
+                    <url>#_GOV_REG_DB_CONNECTION_URL_#</url>
                     <username>#_GOV_REG_USER_#</username>
                     <password>#_GOV_REG_USER_PWD_#</password>
                     <driverClassName>#_DRIVER_CLASS_#</driverClassName>
@@ -84,13 +84,12 @@
                     <maxWait>60000</maxWait>
                     <minIdle>5</minIdle>
                     <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
+                    <!--<validationQuery>SELECT 1</validationQuery>-->
+                    <!--<validationInterval>30000</validationInterval>-->
                     <defaultAutoCommit>false</defaultAutoCommit>
                 </configuration>
             </definition>
         </datasource>
-
         <datasource>
             <name>WSO2_IDENTITY_DB</name>
             <description>The datasource used for config registry and identity</description>
@@ -99,7 +98,7 @@
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:#_RDS_TYPE_#://#_RDS_HOSTNAME_#:#_RDS_PORT_#/#_IDENTITY_DB_#</url>
+                    <url>#_IDENTITY_DB_CONNECTION_URL_#</url>
                     <username>#_IDENTITY_USER_#</username>
                     <password>#_IDENTITY_USER_PWD_#</password>
                     <driverClassName>#_DRIVER_CLASS_#</driverClassName>
@@ -107,8 +106,8 @@
                     <maxWait>60000</maxWait>
                     <minIdle>5</minIdle>
                     <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
+                    <!--<validationQuery>SELECT 1</validationQuery>-->
+                    <!--<validationInterval>30000</validationInterval>-->
                     <defaultAutoCommit>false</defaultAutoCommit>
                 </configuration>
             </definition>
