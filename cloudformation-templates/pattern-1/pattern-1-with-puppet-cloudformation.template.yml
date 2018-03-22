@@ -82,7 +82,6 @@ Parameters:
       - oracle-se1
   DBEngineVersion:
     Type: String
-    Default: "5.6.35"
     Description: Database Engine version
     MinLength: 1
   DBUsername:
@@ -162,6 +161,14 @@ Parameters:
     Type: String
     Default: "5.4.0"
     Description: Enter product version
+  OS:
+    Type: String
+    Default: "ubuntu"
+    Description: Enter target OS. This will be the username of the created EC2 instances as well.
+  OSVersion:
+    Type: String
+    Default: "16.04"
+    Description: Enter target OS version.
 # Conditions
 Conditions:
   UseDefaultUbuntuAMI: !Equals [!Ref AMI, READ_FROM_REGIONMAP]
@@ -437,10 +444,9 @@ Resources:
             mkdir workspace
             cd workspace
             git clone https://github.com/harshanl/cloudformation-is --depth 1
-            chown -R ubuntu cloudformation-is
             cd cloudformation-is
-            scripts/setup-env.sh -user ubuntu -rdsengine ${DBEngine} -wumuser ${WUMUsername} -wumpwd ${WUMPassword}
-            scripts/setup-is.sh -user ubuntu -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsversion ${DBEngineVersion} -rdsusername ${DBUsername} -rdspassword ${DBPassword} -lbhost ${WSO2EnvISApplicationLoadBalancer.DNSName} -pname ${ProductName} -pversion ${ProductVersion}
+            scripts/setup-env.sh -os ${OS} -rdsengine ${DBEngine} -wumuser ${WUMUsername} -wumpwd ${WUMPassword}
+            scripts/setup-is.sh -os ${OS} -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsversion ${DBEngineVersion} -rdsusername ${DBUsername} -rdspassword ${DBPassword} -lbhost ${WSO2EnvISApplicationLoadBalancer.DNSName} -pname ${ProductName} -pversion ${ProductVersion}
             cat /dev/null > ~/.bash_history && history -c
       Tags:
         - Key: Name

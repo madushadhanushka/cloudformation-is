@@ -3,7 +3,8 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 # Echoes all commands before executing.
 set -o verbose
 
-readonly USERNAME=$2
+readonly OS=$(echo "$2" | awk '{print tolower($0)}')
+readonly USERNAME=$(echo "$2" | awk '{print tolower($0)}')
 readonly DB_HOST=$4
 readonly DB_PORT=$6
 readonly DB_ENGINE=$(echo "$8" | awk '{print tolower($0)}')
@@ -187,15 +188,15 @@ copy_config_files() {
 
 get_jdbc_connection_url() {
     URL=""
-    if [ $DB_ENGINE = "postgres" ]; then
+    if [[ $DB_ENGINE = "postgres" ]]; then
         URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$1"
-    elif [ $DB_ENGINE = "mysql" ]; then
+    elif [[ $DB_ENGINE = "mysql" ]]; then
 	    URL="jdbc:mysql://$DB_HOST:$DB_PORT/$1"
     elif [[ $DB_ENGINE =~ 'oracle' ]]; then
         URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT/$SID"
     elif [[ $DB_ENGINE =~ 'sqlserver' ]]; then
         URL="jdbc:sqlserver://$DB_HOST:$DB_PORT;databaseName=$1"
-    elif [ $DB_ENGINE = "mariadb" ]; then
+    elif [[ $DB_ENGINE = "mariadb" ]]; then
         URL="jdbc:mariadb://$DB_HOST:$DB_PORT/$1"
     fi
     echo $URL
@@ -229,15 +230,15 @@ configure_product() {
 
 get_driver_class() {
     DRIVER_CLASS=""
-    if [ $DB_ENGINE = "postgres" ]; then
+    if [[ $DB_ENGINE = "postgres" ]]; then
         DRIVER_CLASS="org.postgresql.Driver"
-    elif [ $DB_ENGINE = "mysql" ]; then
+    elif [[ $DB_ENGINE = "mysql" ]]; then
 	    DRIVER_CLASS="com.mysql.jdbc.Driver"
     elif [[ $DB_ENGINE =~ 'oracle' ]]; then
         DRIVER_CLASS="oracle.jdbc.driver.OracleDriver"
     elif [[ $DB_ENGINE =~ 'sqlserver' ]]; then
         DRIVER_CLASS="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-    elif [ $DB_ENGINE = "mariadb" ]; then
+    elif [[ $DB_ENGINE = "mariadb" ]]; then
         DRIVER_CLASS="org.mariadb.jdbc.Driver"
     fi
     echo $DRIVER_CLASS
@@ -246,26 +247,31 @@ get_driver_class() {
 start_product() {
     chown -R ${USERNAME} ${PRODUCT_HOME}
     echo ">> Starting WSO2 Identity Server ... "
-    sudo -u ${USERNAME} bash ${PRODUCT_HOME}/bin/wso2server.sh start
+    whoami > ${PRODUCT_HOME}/user.txt
+    if [[ $OS = "ubuntu" ]]; then
+        sudo -u ${USERNAME} bash ${PRODUCT_HOME}/bin/wso2server.sh start
+    elif [[ $OS = "centos" ]]; then
+        echo $JAVA_HOME > ${PRODUCT_HOME}/user.txt
+        bash ${PRODUCT_HOME}/bin/wso2server.sh start
+    fi
 }
 
 main() {
     setup_wum_updated_pack
-    if [ $USERNAME = "ubuntu" ]; then
+    if [[ $OS = "ubuntu" ]]; then
         source /etc/environment
-    elif [ $USERNAME = "centos" ]; then
+    elif [[ $OS = "centos" ]]; then
         source /etc/profile.d/env.sh
     fi
-    whoami > /home/$USERNAME/java.txt
-    if [ $DB_ENGINE = "postgres" ]; then
+    if [[ $DB_ENGINE = "postgres" ]]; then
         setup_postgres_databases
-    elif [ $DB_ENGINE = "mysql" ]; then
+    elif [[ $DB_ENGINE = "mysql" ]]; then
 	    setup_mysql_databases
     elif [[ $DB_ENGINE =~ 'oracle' ]]; then
         setup_oracle_databases
     elif [[ $DB_ENGINE =~ 'sqlserver' ]]; then
         setup_sqlserver_databases
-    elif [ $DB_ENGINE = "mariadb" ]; then
+    elif [[ $DB_ENGINE = "mariadb" ]]; then
         setup_mariadb_databases
     fi
     copy_libs
