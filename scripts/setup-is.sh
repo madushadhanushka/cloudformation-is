@@ -247,11 +247,9 @@ get_driver_class() {
 start_product() {
     chown -R ${USERNAME} ${PRODUCT_HOME}
     echo ">> Starting WSO2 Identity Server ... "
-    whoami > ${PRODUCT_HOME}/user.txt
     if [[ $OS = "ubuntu" ]]; then
         sudo -u ${USERNAME} bash ${PRODUCT_HOME}/bin/wso2server.sh start
     elif [[ $OS = "centos" ]]; then
-        echo $JAVA_HOME > ${PRODUCT_HOME}/user.txt
         bash ${PRODUCT_HOME}/bin/wso2server.sh start
     fi
 }

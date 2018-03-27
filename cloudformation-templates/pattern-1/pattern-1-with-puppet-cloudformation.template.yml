@@ -169,6 +169,10 @@ Parameters:
     Type: String
     Default: "16.04"
     Description: Enter target OS version.
+  JDK:
+    Type: String
+    Default: "ORACLE_JDK8"
+    Description: Enter target JDK version.
 # Conditions
 Conditions:
   UseDefaultUbuntuAMI: !Equals [!Ref AMI, READ_FROM_REGIONMAP]
@@ -445,7 +449,7 @@ Resources:
             cd workspace
             git clone https://github.com/harshanl/cloudformation-is --depth 1
             cd cloudformation-is
-            scripts/setup-env.sh -os ${OS} -rdsengine ${DBEngine} -wumuser ${WUMUsername} -wumpwd ${WUMPassword}
+            scripts/setup-env.sh -os ${OS} -rdsengine ${DBEngine} -wumuser ${WUMUsername} -wumpwd ${WUMPassword} -jdk ${JDK}
             scripts/setup-is.sh -os ${OS} -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsversion ${DBEngineVersion} -rdsusername ${DBUsername} -rdspassword ${DBPassword} -lbhost ${WSO2EnvISApplicationLoadBalancer.DNSName} -pname ${ProductName} -pversion ${ProductVersion}
             cat /dev/null > ~/.bash_history && history -c
       Tags:
