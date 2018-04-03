@@ -24,20 +24,25 @@ infrastructureConfig:
             region: us-east-1
           name: infra-for-two-node-deployment
           type: CLOUDFORMATION
-scenarioConfig: 
-  scenarios: 
-    - 
+scenarioConfig:
+  scenarios:
+    -
+      name: scenario02
+      description: 'Multiple login options by service provider'
       dir: scenario02
-      name: "Multiple login options by service provider"
-    - 
+    -
+      name: scenario12
+      description: 'Claim Mapper with Service Provider Travelocity and Identity Provider Facebook and Google'
       dir: scenario12
-      name: "Claim mapper"
-    - 
+    -
+      name: scenario18
+      description: 'Fine-grained access control for service providers'
       dir: scenario18
-      name: "Fine-grained access control for service providers"
-    - 
+    -
+      name: scenario21
+      description: 'Enforce users to provide missing required attributes while getting JIT provisioned to the local system'
       dir: scenario21
-      name: "Enforce users to provide missing required attributes while getting JIT provisioned to the local system"
-    - 
+    -
+      name: scenario28
+      description: 'Home realm discovery'
       dir: scenario28
-      name: "Home realm discovery"
