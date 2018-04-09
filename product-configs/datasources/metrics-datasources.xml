@@ -44,6 +44,7 @@
             </definition>
         </datasource>
 
+
         <!-- MySQL -->
         <!--
         <datasource>
@@ -98,26 +99,26 @@
 
         <!-- SQLServer XA -->
         <!--
-                <datasource>
-                    <name>WSO2_METRICS_DB</name>
-                    <description>The SQLServer XA datasource used for WSO2 Carbon Metrics</description>
-                    <jndiConfig>
-                        <name>jdbc/WSO2MetricsDB</name>
-                    </jndiConfig>
-                    <definition type="RDBMS">
-                        <configuration>
-                            <defaultAutoCommit>true</defaultAutoCommit>
-                            <dataSourceClassName>com.microsoft.sqlserver.jdbc.SQLServerXADataSource</dataSourceClassName>
-                            <dataSourceProps>
-                                <property name="URL">jdbc:sqlserver://localhost/SQLExpress:1433</property>
-                                <property name="databaseName">wso2_metrics</property>
-                                <property name="user">sa</property>
-                                <property name="password">sa</property>
-                            </dataSourceProps>
-                        </configuration>
-                    </definition>
-                </datasource>
-                -->
+        <datasource>
+            <name>WSO2_METRICS_DB</name>
+            <description>The SQLServer XA datasource used for WSO2 Carbon Metrics</description>
+            <jndiConfig>
+                <name>jdbc/WSO2MetricsDB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <defaultAutoCommit>true</defaultAutoCommit>
+                    <dataSourceClassName>com.microsoft.sqlserver.jdbc.SQLServerXADataSource</dataSourceClassName>
+                    <dataSourceProps>
+                        <property name="URL">jdbc:sqlserver://localhost/SQLExpress:1433</property>
+                        <property name="databaseName">wso2_metrics</property>
+                        <property name="user">sa</property>
+                        <property name="password">sa</property>
+                    </dataSourceProps>
+                </configuration>
+            </definition>
+        </datasource>
+        -->
 
         <!-- Oracle -->
         <!--
