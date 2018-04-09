@@ -24,6 +24,16 @@ infrastructureConfig:
             region: us-east-1
           name: infra-for-single-node-deployment
           type: CLOUDFORMATION
+deploymentConfig:
+  deploymentPatterns:
+    - name: is-single-node-deployment
+      description: Creates infrastructure for a single node IS deployment
+      dir: .
+      scripts:
+        - type: CLOUDFORMATION
+          description: Do an IS single node deployment.
+          file: pattern-1-with-puppet-cloudformation.template.yml
+          inputParameters:
 scenarioConfig:
   scenarios:
     -
