@@ -9,12 +9,12 @@ infrastructureConfig:
       JDK: ORACLE_JDK8
   provisioners: 
     - 
-      description: "Provision Infra for a two node IS cluster"
+      description: "Provision Infra for a single node IS"
       dir: cloudformation-templates/pattern-1
-      name: 01-two-node-deployment
+      name: 01-single-node-deployment
       scripts: 
         - 
-          description: "Creates infrastructure for a IS two node deployment."
+          description: "Creates infrastructure for single node IS deployment."
           file: pattern-1-with-puppet-cloudformation.template.yml
           inputParameters: 
             ALBCertificateARN: "arn:aws:acm:us-east-1:809489900555:certificate/2ab5aded-5df1-4549-9f7e-91639ff6634e"
@@ -22,26 +22,42 @@ infrastructureConfig:
             EC2KeyPair: testgrid-key
             parseInfrastructureScript: false
             region: us-east-1
-          name: infra-for-two-node-deployment
+          name: infra-for-single-node-deployment
           type: CLOUDFORMATION
 scenarioConfig:
   scenarios:
     -
-      name: scenario02
-      description: 'Multiple login options by service provider'
-      dir: scenario02
+      name: scenario01
+      description: 'Single Sign On between multiple heterogeneous identity federation protocols'
+      dir: scenario01
+    -
+      name: scenario03
+      description: 'Provision Federated Users by the Identity Provider'
+      dir: scenario03
+    -
+      name: scenario09
+      description: 'User Management upon multi-layer approval'
+      dir: scenario09
+    -
+      name: scenario11
+      description: 'Identity federation between service providers and identity providers with incompatible identity federation protocols'
+      dir: scenario11
     -
       name: scenario12
-      description: 'Claim Mapper with Service Provider Travelocity and Identity Provider Facebook and Google'
+      description: 'Claim mapper'
       dir: scenario12
-    -
-      name: scenario18
-      description: 'Fine-grained access control for service providers'
-      dir: scenario18
     -
       name: scenario21
       description: 'Enforce users to provide missing required attributes while getting JIT provisioned to the local system'
       dir: scenario21
+    -
+      name: scenario22
+      description: 'Access a microservice from a web app protected with SAML 2.0 or OIDC'
+      dir: scenario22
+    -
+      name: scenario23
+      description: 'Single Sign On between a legacy web app, which cannot change the user interface and service providers, which support standard SSO protocols'
+      dir: scenario23
     -
       name: scenario28
       description: 'Home realm discovery'

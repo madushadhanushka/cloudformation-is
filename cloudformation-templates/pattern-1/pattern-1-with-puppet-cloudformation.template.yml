@@ -159,7 +159,7 @@ Parameters:
     Description: Enter product name
   ProductVersion:
     Type: String
-    Default: "5.4.0"
+    Default: "5.5.0"
     Description: Enter product version
   OS:
     Type: String
