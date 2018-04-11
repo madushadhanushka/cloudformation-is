@@ -21,6 +21,41 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
   WSO2 Identity Server single node deployment setup
 
+##############################################################################################
+# Mappings for Ubuntu AMIs
+# Refer https://cloud-images.ubuntu.com/locator/ec2/ for ubuntu AMI-ID's for the LTS version
+##############################################################################################
+Mappings:
+  RegionMap:
+    ap-northeast-1:
+      AMI: ami-2f2d9c49
+    ap-northeast-2:
+      AMI: ami-e49e398a
+    ap-south-1:
+      AMI: ami-46eea129
+    ap-southeast-1:
+      AMI: ami-84a6f3e7
+    ap-southeast-2:
+      AMI: ami-4cc8232e
+    ca-central-1:
+      AMI: ami-338b3057
+    eu-central-1:
+      AMI: ami-e22aaa8d
+    eu-west-1:
+      AMI: ami-2e832957
+    eu-west-2:
+      AMI: ami-3fc8d75b
+    sa-east-1:
+      AMI: ami-981550f4
+    us-east-1:
+      AMI: ami-c29e1cb8
+    us-east-2:
+      AMI: ami-f0f8d695
+    us-west-1:
+      AMI: ami-8b90a9eb
+    us-west-2:
+      AMI: ami-25cf1c5d
+
 #############################
 # User inputs
 #############################
