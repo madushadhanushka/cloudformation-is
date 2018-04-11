@@ -191,7 +191,7 @@ get_jdbc_connection_url() {
     if [[ $DB_ENGINE = "postgres" ]]; then
         URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$1"
     elif [[ $DB_ENGINE = "mysql" ]]; then
-	    URL="jdbc:mysql://$DB_HOST:$DB_PORT/$1"
+	    URL="jdbc:mysql://$DB_HOST:$DB_PORT/$1?useSSL=false"
     elif [[ $DB_ENGINE =~ 'oracle' ]]; then
         URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT/$SID"
     elif [[ $DB_ENGINE =~ 'sqlserver' ]]; then
