@@ -68,11 +68,11 @@ setup_java() {
     ENV_VAR_FILE=/etc/environment
 
     echo JDK_PARAM=${JDK} >> /home/ubuntu/java.txt
-    echo ORACLE_JDK9=${ORACLE_JDK9} >> /home/ubuntu/java.txt
 
     if [[ $OS = "ubuntu" ]]; then
         source ${ENV_VAR_FILE}
         JAVA_HOME=$(get_java_home)
+        echo ${JAVA_HOME}
         echo "JAVA_HOME=$JAVA_HOME" >> ${ENV_VAR_FILE}
     elif [[ $OS = "centos" ]]; then
         ENV_VAR_FILE="/etc/profile.d/env.sh"

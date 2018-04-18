@@ -60,7 +60,7 @@ configure_ssl() {
 
     cd ${PRODUCT_HOME}/repository/resources/security
     keytool -delete -alias wso2carbon -keystore wso2carbon.jks -keypass wso2carbon -storepass wso2carbon
-    keytool -genkey -alias wso2carbon -keyalg RSA -keysize 2048 -keystore wso2carbon.jks -dname "CN=$IS_HOST_NAME,OU=Eng,O=WSO2,ST=CA,C=US" -storepass wso2carbon -keypass wso2carbon
+    keytool -genkey -alias wso2carbon -keyalg RSA -keysize 2048 -keystore wso2carbon.jks -dname "CN=$IS_HOST_NAME,OU=Eng,O=WSO2,ST=CA,C=US" -storepass wso2carbon -keypass wso2carbon -validity 3600
     keytool -delete -alias wso2carbon -keystore client-truststore.jks -storepass wso2carbon
     keytool -export -alias wso2carbon -keystore wso2carbon.jks -file wso2carbon.pem -storepass wso2carbon
     keytool -import -alias wso2carbon -file wso2carbon.pem -keystore client-truststore.jks -storepass wso2carbon -noprompt
