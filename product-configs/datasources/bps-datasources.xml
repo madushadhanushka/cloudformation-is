@@ -42,7 +42,7 @@
                     <!--<validationQuery>SELECT 1</validationQuery>-->
                     <!--<validationInterval>30000</validationInterval>-->
                     <useDataSourceFactory>false</useDataSourceFactory>
-                    <defaultAutoCommit>false</defaultAutoCommit>
+                    <defaultAutoCommit>#_AUTO_COMMIT_#</defaultAutoCommit>
                 </configuration>
             </definition>
         </datasource>

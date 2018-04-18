@@ -63,7 +63,7 @@
                     <testOnBorrow>true</testOnBorrow>
                     <!--<validationQuery>SELECT 1</validationQuery>-->
                     <!--<validationInterval>30000</validationInterval>-->
-                    <defaultAutoCommit>false</defaultAutoCommit>
+                    <defaultAutoCommit>#_AUTO_COMMIT_#</defaultAutoCommit>
                 </configuration>
             </definition>
         </datasource>
@@ -86,7 +86,7 @@
                     <testOnBorrow>true</testOnBorrow>
                     <!--<validationQuery>SELECT 1</validationQuery>-->
                     <!--<validationInterval>30000</validationInterval>-->
-                    <defaultAutoCommit>false</defaultAutoCommit>
+                    <defaultAutoCommit>#_AUTO_COMMIT_#</defaultAutoCommit>
                 </configuration>
             </definition>
         </datasource>
@@ -108,7 +108,7 @@
                     <testOnBorrow>true</testOnBorrow>
                     <!--<validationQuery>SELECT 1</validationQuery>-->
                     <!--<validationInterval>30000</validationInterval>-->
-                    <defaultAutoCommit>false</defaultAutoCommit>
+                    <defaultAutoCommit>#_AUTO_COMMIT_#</defaultAutoCommit>
                 </configuration>
             </definition>
         </datasource>

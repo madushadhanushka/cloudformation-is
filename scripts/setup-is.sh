@@ -46,7 +46,6 @@ readonly BPS_USER_PWD=$DB_PASSWORD
 METRICS_USER=$DB_USERNAME
 readonly METRICS_USER_PWD=$DB_PASSWORD
 
-
 setup_wum_updated_pack() {
 
     sudo -u ${USERNAME} /usr/local/wum/bin/wum add ${WUM_PRODUCT_NAME} -y
@@ -55,6 +54,16 @@ setup_wum_updated_pack() {
     chown -R ${USERNAME} ${INSTALLATION_DIR}
     echo ">> Copying WUM updated ${WUM_PRODUCT_NAME} to ${INSTALLATION_DIR}"
     sudo -u ${USERNAME} unzip ${WUM_PRODUCT_DIR}/$(ls -t ${WUM_PRODUCT_DIR} | grep .zip | head -1) -d ${INSTALLATION_DIR}
+}
+
+configure_ssl() {
+
+    cd ${PRODUCT_HOME}/repository/resources/security
+    keytool -delete -alias wso2carbon -keystore wso2carbon.jks -keypass wso2carbon -storepass wso2carbon
+    keytool -genkey -alias wso2carbon -keyalg RSA -keysize 2048 -keystore wso2carbon.jks -dname "CN=$IS_HOST_NAME,OU=Eng,O=WSO2,ST=CA,C=US" -storepass wso2carbon -keypass wso2carbon
+    keytool -delete -alias wso2carbon -keystore client-truststore.jks -storepass wso2carbon
+    keytool -export -alias wso2carbon -keystore wso2carbon.jks -file wso2carbon.pem -storepass wso2carbon
+    keytool -import -alias wso2carbon -file wso2carbon.pem -keystore client-truststore.jks -storepass wso2carbon -noprompt
 }
 
 setup_mysql_databases() {
@@ -69,7 +78,7 @@ setup_mysql_databases() {
     if [[ $DB_VERSION == "5.7*" ]]; then
         mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -e "USE $UM_DB; SOURCE $DB_SCRIPTS_PATH/mysql5.7.sql;
         USE $GOV_REG_DB; SOURCE $DB_SCRIPTS_PATH/mysql5.7.sql; USE $CONFIG_REG_DB; SOURCE $DB_SCRIPTS_PATH/mysql5.7.sql;
-        USE $IDENTITY_DB; SOURCE $DB_SCRIPTS_PATH/identity/mysql-5.7.sql; USE $BPS_DB; SOURCE $DB_SCRIPTS_PATH/bps/bpel/create/mysql5.7.sql;
+        USE $IDENTITY_DB; SOURCE $DB_SCRIPTS_PATH/identity/mysql-5.7.sql; USE $BPS_DB; SOURCE $DB_SCRIPTS_PATH/bps/bpel/create/mysql.sql;
         USE $METRICS_DB; SOURCE $DB_SCRIPTS_PATH/metrics/mysql.sql;"
     else
         mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD -e "USE $UM_DB; SOURCE $DB_SCRIPTS_PATH/mysql.sql;
@@ -204,6 +213,7 @@ get_jdbc_connection_url() {
 
 configure_product() {
     DRIVER_CLASS=$(get_driver_class)
+    AUTO_COMMIT=$(get_auto_commit)
     echo ">> Configuring product "
     find ${PRODUCT_HOME}/ -type f \( -iname "*.properties" -o -iname "*.xml" \) -print0 | xargs -0 sed -i 's/#_IS_LB_HOSTNAME_#/'$IS_HOST_NAME'/g'
     find ${PRODUCT_HOME}/ -type f \( -iname "*.properties" -o -iname "*.xml" \) -print0 | xargs -0 sed -i 's|#_UM_DB_CONNECTION_URL_#|'$(get_jdbc_connection_url $UM_DB)'|g'
@@ -225,6 +235,7 @@ configure_product() {
     find ${PRODUCT_HOME}/ -type f \( -iname "*.properties" -o -iname "*.xml" \) -print0 | xargs -0 sed -i 's/#_METRICS_USER_#/'$METRICS_USER'/g'
     find ${PRODUCT_HOME}/ -type f \( -iname "*.properties" -o -iname "*.xml" \) -print0 | xargs -0 sed -i 's/#_METRICS_USER_PWD_#/'$METRICS_USER_PWD'/g'
     find ${PRODUCT_HOME}/ -type f \( -iname "*.properties" -o -iname "*.xml" \) -print0 | xargs -0 sed -i 's/#_DRIVER_CLASS_#/'$DRIVER_CLASS'/g'
+    find ${PRODUCT_HOME}/ -type f \( -iname "*.properties" -o -iname "*.xml" \) -print0 | xargs -0 sed -i 's/#_AUTO_COMMIT_#/'$AUTO_COMMIT'/g'
     echo "Done!"
 }
 
@@ -242,6 +253,14 @@ get_driver_class() {
         DRIVER_CLASS="org.mariadb.jdbc.Driver"
     fi
     echo $DRIVER_CLASS
+}
+
+get_auto_commit() {
+    AUTO_COMMIT="false"
+    if [[ $DB_ENGINE = "mysql" ]]; then
+	    AUTO_COMMIT="true"
+    fi
+    echo $AUTO_COMMIT
 }
 
 start_product() {
@@ -275,6 +294,7 @@ main() {
     copy_libs
     copy_config_files
     configure_product
+    configure_ssl
     start_product
 }
 
