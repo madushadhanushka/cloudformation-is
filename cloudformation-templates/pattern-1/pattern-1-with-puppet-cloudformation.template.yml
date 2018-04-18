@@ -19,7 +19,7 @@
 # ----------------------------------------------------------------------------
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  WSO2 Identity Server single node deployment with puppet master agent setup
+  WSO2 Identity Server single node deployment setup
 
 ##############################################################################################
 # Mappings for Ubuntu AMIs
@@ -98,7 +98,7 @@ Parameters:
     MinLength: 6
     ConstraintDescription: minimum - 6 characters
   DBClass:
-    Default: db.t2.micro
+    Default: db.t2.medium
     Description: Database instance class
     Type: String
     AllowedValues:
