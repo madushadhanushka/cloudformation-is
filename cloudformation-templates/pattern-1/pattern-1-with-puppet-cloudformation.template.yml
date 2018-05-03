@@ -173,10 +173,10 @@ Parameters:
     Type: String
     Default: "ORACLE_JDK8"
     Description: Enter target JDK version.
-  TestPlanId:
+  CustomUserData:
     Type: String
-    Default: "default-testplan-id"
-    Description: Enter Test Plan ID.
+    Default: "echo"
+    Description: Enter custome user data scripts here.
 # Conditions
 Conditions:
   UseDefaultUbuntuAMI: !Equals [!Ref AMI, READ_FROM_REGIONMAP]
@@ -451,15 +451,12 @@ Resources:
             set -e
             mkdir workspace
             cd workspace
-            git clone https://github.com/charithag/cloudformation-is --depth 1
+            git clone https://github.com/harshanl/cloudformation-is --depth 1
             cd cloudformation-is
             scripts/setup-env.sh -os ${OS} -rdsengine ${DBEngine} -wumuser ${WUMUsername} -wumpwd ${WUMPassword} -jdk ${JDK}
             scripts/setup-is.sh -os ${OS} -rdshost ${WSO2EnvDBInstance.Endpoint.Address} -rdsport ${WSO2EnvDBInstance.Endpoint.Port} -rdsengine ${DBEngine} -rdsversion ${DBEngineVersion} -rdsusername ${DBUsername} -rdspassword ${DBPassword} -lbhost ${WSO2EnvISApplicationLoadBalancer.DNSName} -pname ${ProductName} -pversion ${ProductVersion}
             cat /dev/null > ~/.bash_history && history -c
-            echo "wsEndpoint=ws://ec2-34-232-211-33.compute-1.amazonaws.com:8080/remote-session/v0.9/agent/" > /opt/testgrid/agent-config.properties
-            echo "testPlanId=${TestPlanId}" >> /opt/testgrid/agent-config.properties
-            echo "nodeId=wso2-is-node" >> /opt/testgrid/agent-config.properties
-            sudo service testgrid-agent restart
+            ${CustomUserData}
       Tags:
         - Key: Name
           Value: wso2-is-node
