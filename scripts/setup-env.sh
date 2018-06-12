@@ -16,6 +16,8 @@ readonly TMP_DIR=/tmp
 install_wum() {
 
     echo "127.0.0.1 $(hostname)" >> /etc/hosts
+    echo ${WUM_USER}
+    echo ${WUM_PASS}
     if [ $OS = "ubuntu" ]; then
         wget -P ${LIB_DIR} https://product-dist.wso2.com/downloads/wum/1.0.0/wum-1.0-linux-x64.tar.gz
     elif [ $OS = "centos" ]; then
