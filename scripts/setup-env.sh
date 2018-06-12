@@ -16,15 +16,13 @@ readonly TMP_DIR=/tmp
 install_wum() {
 
     echo "127.0.0.1 $(hostname)" >> /etc/hosts
-    echo ${WUM_USER}
-    echo ${WUM_PASS}
     if [ $OS = "ubuntu" ]; then
-        wget -P ${LIB_DIR} https://product-dist.wso2.com/downloads/wum/1.0.0/wum-1.0-linux-x64.tar.gz
+        wget -P ${LIB_DIR} https://product-dist.wso2.com/downloads/wum/2.0/wum-2.0-linux-x64.tar.gz
     elif [ $OS = "centos" ]; then
-        curl https://product-dist.wso2.com/downloads/wum/1.0.0/wum-1.0-linux-x64.tar.gz --output ${LIB_DIR}/wum-1.0-linux-x64.tar.gz
+        curl https://product-dist.wso2.com/downloads/wum/2.0/wum-2.0-linux-x64.tar.gz --output ${LIB_DIR}/wum-2.0-linux-x64.tar.gz
     fi
     cd /usr/local/
-    tar -zxvf "${LIB_DIR}/wum-1.0-linux-x64.tar.gz"
+    tar -zxvf "${LIB_DIR}/wum-2.0-linux-x64.tar.gz"
     chown -R ${USERNAME} wum/
 
     echo ">> Adding WUM installation directory to PATH ..."
