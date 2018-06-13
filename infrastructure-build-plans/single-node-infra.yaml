@@ -37,18 +37,6 @@ deploymentConfig:
 scenarioConfig:
   scenarios:
     -
-      name: scenario01
-      description: 'Single Sign On between multiple heterogeneous identity federation protocols'
-      dir: scenario01
-    -
-      name: scenario03
-      description: 'Provision Federated Users by the Identity Provider'
-      dir: scenario03
-    -
-      name: scenario09
-      description: 'User Management upon multi-layer approval'
-      dir: scenario09
-    -
       name: scenario11
       description: 'Identity federation between service providers and identity providers with incompatible identity federation protocols'
       dir: scenario11
@@ -64,11 +52,10 @@ scenarioConfig:
       name: scenario22
       description: 'Access a microservice from a web app protected with SAML 2.0 or OIDC'
       dir: scenario22
+  scripts:
     -
-      name: scenario23
-      description: 'Single Sign On between a legacy web app, which cannot change the user interface and service providers, which support standard SSO protocols'
-      dir: scenario23
+      file: "init.sh"
+      phase: CREATE
     -
-      name: scenario28
-      description: 'Home realm discovery'
-      dir: scenario28
+      file: "cleanup.sh"
+      phase: DESTROY
