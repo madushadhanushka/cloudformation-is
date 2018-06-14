@@ -578,6 +578,3 @@ Outputs:
   WSO2ISMCURL:
     Value: !Sub 'https://${WSO2EnvISApplicationLoadBalancer.DNSName}/carbon'
     Description: Access URL of the Management Console
-  IPLoadBalancer:
-    value: !Sub '${WSO2EnvISApplicationLoadBalancer.PublicIp}'
-    Description: Public IP of the LB
