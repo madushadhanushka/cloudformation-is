@@ -37,6 +37,10 @@ deploymentConfig:
 scenarioConfig:
   scenarios:
     -
+      name: scenario03
+      description: 'Provision Federated Users by the Identity Provider'
+      dir: scenario03
+    -
       name: scenario11
       description: 'Identity federation between service providers and identity providers with incompatible identity federation protocols'
       dir: scenario11
