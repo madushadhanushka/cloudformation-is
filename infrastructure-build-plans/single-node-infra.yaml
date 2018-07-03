@@ -35,6 +35,13 @@ deploymentConfig:
           file: pattern-1-with-puppet-cloudformation.template.yml
           inputParameters:
 scenarioConfig:
+  configChangeSets:
+    -
+      name: config02
+      description: 'Config changes required to enable SSO in Multi-factor authentication for WSO2 Identity Server management console'
+    -
+      name: config04
+      description: 'Congig changes applies/reverts the identity server with the oauth_proxy.properties, oauth2-proxy.war and skips the user consent'
   scenarios:
     -
       name: scenario03
