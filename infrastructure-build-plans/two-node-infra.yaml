@@ -21,15 +21,16 @@
              DBPassword: "DB_Password"
              EC2KeyPair: "testgrid-key"
              ALBCertificateARN: "arn:aws:acm:us-east-1:809489900555:certificate/2ab5aded-5df1-4549-9f7e-91639ff6634e"
-scenarioConfig:
-  configChangeSets:
+
+ scenarioConfig:
+    configChangeSets:
     -
       name: config02
       description: 'Config changes required to enable SSO in Multi-factor authentication for WSO2 Identity Server management console'
     -
       name: config04
       description: 'Congig changes applies/reverts the identity server with the oauth_proxy.properties, oauth2-proxy.war and skips the user consent'
-  scenarios:
+    scenarios:
     -
       name: scenario03
       description: 'Provision Federated Users by the Identity Provider'
